@@ -6,18 +6,18 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   fullWidth?: boolean;
 }
 
-export const Button = ({
-  variant = 'primary',
-  size = 'md',
-  fullWidth = false,
-  className = '',
-  children,
-  ...props
-}: ButtonProps) => {
+const Button = ({
+                  variant = 'primary',
+                  size = 'md',
+                  fullWidth = false,
+                  className = '',
+                  children,
+                  ...props
+                }: ButtonProps) => {
   const baseClass = 'btn';
-  const variantClass = `${baseClass}--${variant}`;
-  const sizeClass = `${baseClass}--${size}`;
-  const fullWidthClass = fullWidth ? `${baseClass}--full` : '';
+  const variantClass = `btn--${variant}`;
+  const sizeClass = `btn--${size}`;
+  const fullWidthClass = fullWidth ? 'btn--full' : '';
 
   const combinedClasses = [
     baseClass,
@@ -28,9 +28,9 @@ export const Button = ({
   ].filter(Boolean).join(' ');
 
   return (
-    <button className={combinedClasses} {...props}>
-      {children}
-    </button>
+      <button className={combinedClasses} {...props}>
+        {children}
+      </button>
   );
 };
 
