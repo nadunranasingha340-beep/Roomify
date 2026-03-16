@@ -8,13 +8,10 @@ import {
     isHostedUrl
 } from "./utils";
 
-type HostingConfig = { subdomain: string; };
-type HostedAsset = { url: string };
-
 export const getOrCreateHostingConfig = async (): Promise<HostingConfig | null> => {
     const existing = (await puter.kv.get(HOSTING_CONFIG_KEY)) as HostingConfig | null;
 
-    if(existing?.subdomain) return  { subdomain: existing.subdomain };
+    if(existing?.subdomain) return { subdomain: existing.subdomain };
 
     const subdomain = createHostingSlug();
 
@@ -24,6 +21,7 @@ export const getOrCreateHostingConfig = async (): Promise<HostingConfig | null> 
         const record = { subdomain: created.subdomain };
 
         await puter.kv.set(HOSTING_CONFIG_KEY, record);
+
         return record;
     } catch (e) {
         console.warn(`Could not find subdomain: ${e}`);
@@ -36,8 +34,9 @@ export const uploadImageToHosting = async ({ hosting, url, projectId, label }: S
     if(isHostedUrl(url)) return { url };
 
     try {
-        const resolved = label === 'rendered'
-            ? await imageUrlToPngBlob(url).then((blob) => blob ? { blob, contentType: 'image/png' }: null)
+        const resolved = label === "rendered"
+            ? await imageUrlToPngBlob(url)
+                .then((blob) => blob ? { blob, contentType: 'image/png' }: null)
             : await fetchBlobFromUrl(url);
 
         if(!resolved) return null;
@@ -45,16 +44,16 @@ export const uploadImageToHosting = async ({ hosting, url, projectId, label }: S
         const contentType = resolved.contentType || resolved.blob.type || '';
         const ext = getImageExtension(contentType, url);
         const dir = `projects/${projectId}`;
-        const filepath = `${dir}/${label}.${ext}`;
+        const filePath = `${dir}/${label}.${ext}`;
 
         const uploadFile = new File([resolved.blob], `${label}.${ext}`, {
             type: contentType,
         });
 
-        await puter.fs.mkdir(dir,{ createMissingParents: true });
-        await puter.fs.write(filepath, uploadFile);
+        await puter.fs.mkdir(dir, { createMissingParents: true });
+        await puter.fs.write(filePath, uploadFile);
 
-        const hostedUrl = getHostedUrl({ subdomain: hosting.subdomain }, filepath);
+        const hostedUrl = getHostedUrl({ subdomain: hosting.subdomain }, filePath);
 
         return hostedUrl ? { url: hostedUrl } : null;
     } catch (e) {
